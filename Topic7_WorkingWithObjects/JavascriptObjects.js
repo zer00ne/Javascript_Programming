@@ -40,3 +40,25 @@ console.log(anotherPerson.name); // Bryant
 console.log(person.name); // Bryant
 
 
+
+/*
+`new X` Vs `Object.create(X)`
+===========================
+
+Considering `Employee` constructor, Difference between `new Employee` and `Object.create(Employee)`:
+
+1) `new` is called only on Function constructors.
+
+2) `Object.create(Employee)` is equivalent to `{"__proto__" : Employee}`.
+
+3) `new Employee()` is equivalent to: 
+      a) `var Y = {"__proto__" : Employee.prototype};`
+      b) Invoke `Employee.apply(Y, arguments);` // `Employee` constructor does not have `arguments`
+      c) Y;                 // is the object created after calling `new X`.
+
+*/
+
+function Employee() {
+  this.name = "";
+  this.dept = "general";
+}
