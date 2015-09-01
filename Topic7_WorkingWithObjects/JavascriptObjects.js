@@ -46,6 +46,9 @@ console.log(person.name); // Bryant
 
 
 
+
+
+
 /*
 `new X` Vs `Object.create(X)`
 ===========================
@@ -75,10 +78,53 @@ function Employee() {
 
 
 
+
+
 /*
 Why is it necessary to set the prototype constructor?
 ====================================================
 
+function Employee() {
+  this.name = "";
+  this.dept = "general";
+}
 
+
+Employee.prototype.copy = function() {  
+    // return new Employee(); // just as bad
+    return new this.constructor();
+};  
+
+
+function Manager() {
+  Employee.call(this);
+  this.reports = [];
+};
+Manager.prototype = Object.create(Employee.prototype);
+
+Now what happens when we create a `new Student` and copy it?
+
+var mgr1 = new Manager();  
+console.log(mgr1.copy() instanceof Manager); // => false
+
+
+The copy is not an instance of `Manager`. This is because 
+(without explicit checks), we'd have no way to return a `Manager`
+copy from the "base" class. We can only return a `Employee`. 
+However, if we had reset the constructor:
+
+// correct the constructor pointer because it points to Person  
+Manager.prototype.constructor = Manager;
+
+...then everything works as expected:
+
+var mgr1 = new Manager();  
+console.log(mgr1.copy() instanceof Manager); // => true
+
+Note: The `constructor` attribute does not have any special meaning in JS,
+so you might as well call it `bananashake`. The only difference is that the
+engine automatically initializes constructor on `f.prototype` whenever 
+you declare a function `f`. However, it can be overwritten any time.
 
 */
+
