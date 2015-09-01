@@ -41,6 +41,11 @@ console.log(person.name); // Bryant
 
 
 
+
+
+
+
+
 /*
 `new X` Vs `Object.create(X)`
 ===========================
@@ -54,7 +59,7 @@ Considering `Employee` constructor, Difference between `new Employee` and `Objec
 3) `new Employee()` is equivalent to: 
       a) `var Y = {"__proto__" : Employee.prototype};`
       b) Invoke `Employee.apply(Y, arguments);` // `Employee` constructor does not have `arguments`
-      c) Y;                 // is the object created after calling `new X`.
+      c) Y;   // is the object created after calling `new X` that has values set for members `name` and `dept`.
 
 */
 
@@ -62,3 +67,18 @@ function Employee() {
   this.name = "";
   this.dept = "general";
 }
+
+
+
+
+
+
+
+
+/*
+Why is it necessary to set the prototype constructor?
+====================================================
+
+
+
+*/
