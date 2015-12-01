@@ -179,13 +179,72 @@ function Employee() {                                         public class Emplo
 }                                                             }
 
 
+The `Manager` and `WorkerBee` definitions show the difference in how to 
+specify the next object higher in the inheritance chain. In JavaScript, 
+you add a prototypical instance as the value of the prototype property 
+of the constructor function. You can do so at any time after you define 
+the constructor. In Java, you specify the superclass within the class 
+definition. You cannot change the superclass outside the class definition.
+
+
+JavaScript                                                      Java
+==========                                                      ====  
+
+function Manager() {                                            public class Manager extends Employee {  
+  Employee.call(this);                                              public Employee[] reports = new Employee[0];
+  this.reports = [];                                            }
+}
+Manager.prototype = Object.create(Employee.prototype);
+
+function WorkerBee() {                                          public class WorkerBee extends Employee {
+  Employee.call(this);                                              public String[] projects = new String[0];
+  this.projects = [];                                           }
+}
+WorkerBee.prototype = Object.create(Employee.prototype);
+
+
+The `Engineer` and `SalesPerson` definitions create objects that descend 
+from `WorkerBee` and hence from `Employee`. An object of these types has
+properties of all the objects above it in the chain. In addition, these
+definitions override the inherited value of the `dept` property with new
+values specific to these objects.
+
+
+JavaScript                                                      Java
+==========                                                      ====
+
+function SalesPerson() {                                        public class SalesPerson extends WorkerBee {
+   WorkerBee.call(this);                                            public double quota;
+   this.dept = "sales";                                             public dept = "sales";  
+   this.quota = 100;                                                public quota = 100.0;  
+}                                                               }    
+SalesPerson.prototype = Object.create(WorkerBee.prototype);
+
+function Engineer() {                                           public class Engineer extends WorkerBee {
+   WorkerBee.call(this);                                            public String machine;  
+   this.dept = "engineering";                                       public dept = "engineering";
+   this.machine = "";                                               public machine = "";
+}                                                                   }
+Engineer.prototype = Object.create(WorkerBee.prototype);
 
 
 
+Using these definitions, you can create instances of these objects that 
+get the default values for their properties. The next figure(Figure - 3)
+illustrates using these JavaScript definitions to create new objects 
+and shows the property values for the new objects.
 
-   
-   
-
+Note: The term instance has a specific technical meaning in class-based 
+languages. In these languages, an instance is an individual instantiation
+of a class and is fundamentally different from a class. In JavaScript, 
+"instance" does not have this technical meaning because JavaScript does
+not have this difference between classes and instances. However, in 
+talking about JavaScript, "instance" can be used informally to mean an
+object created using a particular constructor function. So, in this
+example, you could informally say that jane is an instance of Engineer.
+Similarly, although the terms parent, child, ancestor, and descendant 
+do not have formal meanings in JavaScript; you can use them informally
+to refer to objects higher or lower in the prototype chain.
 
 */
 
@@ -196,147 +255,18 @@ function Employee() {                                         public class Emplo
 
 
 /*
-Creating the Hierarchy
 
-There are several ways you can define appropriate constructor functions to implement the Employee hierarchy. 
-How you choose to define them depends largely on what you want to be able to do in your application. We'll get into all that later.
+Creating objects with the simple definitions
+============================================
 
-For now, let's use very simple (and comparatively inflexible) definitions just to see how we get the inheritance 
-to work. In these definitions, you can't specify any property values when you create an object. The newly-created 
-object simply gets the default values, which you can change at a later time. Figure 2 illustrates the hierarchy 
-with these simple definitions.
+Object hierarchy
 
-In a real application, you would probably define constructors that allow you to provide property values at 
-object creation time. Options for doing so are described later in "More Flexible Constructors". For now, 
-these simple definitions let us look at how the inheritance occurs.
+The following hierarchy is created using the code on the right side.
+
+Figure - 3    
 
 
-
-Figure-2 What the definitions look like
-
-										------------------------------------
-									   |  Employee                          |
-									   |      function Employee () {        | 
-	                                   |            this.name = "";         | 
-	                                   |            this.dept = "general";  |
-	                                   |	   }                            |
-	                                    ------------------------------------
-                         						|              |
-                         						|              |
-                     ___________________________|              |____________________
-                    |                                                               |
-                    |                                                               |
-                    |                                                               |
-       --------------------------------------						----------------------------------------	                     
-      | Manager                              |                     | WorkerBee                              |
-      |    function Manager(){               |                     |     function WorkerBee() {             |
-	  |         this.reports = [];           |                     |          this.project = [];            |
-	  |    }                                 |                     |     }                                  |
-	  |    Manager.prototype = new Employee; |                     |     WorkerBee.prototype = new Employee |
-       --------------------------------------                       ----------------------------------------
-                                                                              |             |
-                                                                              |             |
-                                    __________________________________________|             |
-                                   |                                                        |
-                                   |                                                        |
-                                   |                                                        | 
-          ---------------------------------------             --------------------------------------
-         | Salesperson                           |           |  Engineer                            |
-         | function SalesPerson() {              |           |  function Engineer() {               |
-	     |     this.dept = "sales";              |           |      this.dept = "Engineering";      | 
-	     |     this.quota = 100;                 |           |      this.machine = "";              | 
-	     | }                                     |           |  }                                   |
-	     | SalesPerson.prototype = new WorkerBee;|           |  Engineer.prototype = new WorkerBee; |
-	      ---------------------------------------             --------------------------------------
-
-The simpleJava and JavaScript Employee definitions below are similar. The only difference is that you need to specify
-the type for each property in Java but not in JavaScript and you need to create an explicit constructor method for the Java class.
-														
-
-JavaScript	                                             Java
-----------------------------------------------------------------------
- function Employee () {                         public class Employee { 
-    this.name = "";                                 public String name;  
-    this.dept = "general";                          public String dept;
-}                                                   public Employee () { 
-                                                         this.name = "";
-                                                         this.dept = "general";
-                                                    }
-                                                }
-
-
-The 'Manager' and 'WorkerBee' definitions show the difference in how you specify the
-next object higher in the inheritance chain. In JavaScript, you add a prototypical
-instance as the value of the prototype property of the constructor function. 
-You can do so at any time after you define the constructor. In Java, you specify
-the superclass within the class definition. You cannot change the superclass
-outside the class definition.      
-      
-JavaScript	                                             Java
----------------------------------------------------------------------------
-function Manager () {                              public class Manager extends Employee {
-    this.reports = [];                                   public Employee[] reports;
-}                                                        public Manager () {                                                       
-Manager.prototype = new Employee;                            this.reports = new Employee[0];
-                                                         }
-                                                   }
-function WorkerBee () {                            public class WorkerBee extends Employee {  
-       this.projects = [];                                public String[] projects; 
-}                                                         public WorkerBee () {
-WorkerBee.prototype = new Employee;                           this.projects = new String[0];
-                                                         } 
-                                                   }      
-
-
-
-The 'Engineer' and 'SalesPerson' definitions create objects that descend from 'WorkerBee'
-and hence from 'Employee'. An object of these types has properties of all the objects above
-it in the chain. In addition, these definitions override the inherited value of the
-'dept' property with new values specific to these objects.
-
-
-JavaScript	                                                             Java
---------------------------------------------------------------------------------------------
- function SalesPerson () {                                public class SalesPerson extends WorkerBee {
-   this.dept = "sales";                                       public double quota;
-   this.quota = 100;                                          public SalesPerson () {
-}                                                                  this.dept = "sales";
-SalesPerson.prototype = new WorkerBee;                             this.quota = 100.0;
-                                                              }
-                                                          }
-                                                          
-
-
- function Engineer () {                                   public class Engineer extends WorkerBee {
-   this.dept = "engineering";                                  public String machine;
-   this.machine = "";                                          public Engineer () {
-}                                                                   this.dept = "engineering";
-Engineer.prototype = new WorkerBee;                                 this.machine = ""; 
-                                                               }
-                                                          }
-
-
-Using these definitions, you can create instances of these objects that get the default values
-for their properties. Figure 3 illustrates using these JavaScript definitions to create new 
-objects and shows the property values for the new objects.
-
-Note: As described earlier, the term instance has a specific technical meaning in class-based 
-languages. In these languages, an instance is an individual member of a class and is fundamentally
-different from a class. In JavaScript, "instance" does not have this technical meaning because 
-JavaScript does not have this difference between classes and instances. However, in talking 
-about JavaScript, "instance" can be used informally to mean an object created using a particular
-constructor function. So, in this example, you could informally say that jane is an instance of 
-'Engineer'. Similarly, although the terms parent, child, ancestor, and descendant do not have formal
-meanings in JavaScript, we can use them informally to refer to objects higher or lower in the 
-prototype chain.                                          
-   
-
-
-
-Figure - 3    Creating objects with the simple definitions
-
-
-				       Object hierarchy                                  Individual objects
+      				       Object hierarchy                                  Individual objects
 ------------------------------------------------------------------------------------------------
 
                        --------------                                   jim = new Employee();
@@ -374,6 +304,7 @@ Figure - 3    Creating objects with the simple definitions
 
 */
 
+
 /*
 Object Properties
 
@@ -382,6 +313,31 @@ chain and what happens when you add a property at runtime.
 
 Inheriting Properties
 Assume you create the 'mark' object as a 'WorkerBee' as shown in Figure 3 with this statement:
+
+var mark = new WorkerBee;
+
+When JavaScript sees the `new` operator, it creates a new generic object and passes 
+this new object as the value of the `this` keyword to the `WorkerBee` constructor function. 
+The constructor function explicitly sets the value of the `projects` property, and
+implicitly sets the value of the internal `__proto__` property to the value of 
+`WorkerBee.prototype`. (That property name has two underscore characters at the 
+front and two at the end.) The `__proto__` property determines the prototype chain 
+used to return property values. Once these properties are set, JavaScript returns 
+the new object and the assignment statement sets the variable mark to that object.
+
+
+This process does not explicitly put values in the `mark` object (local values) 
+for the properties that `mark` inherits from the prototype chain. When you ask 
+for the value of a property, JavaScript first checks to see if the value exists 
+in that object. If it does, that value is returned. If the value is not there 
+locally, JavaScript checks the prototype chain (using the `__proto__` property). 
+If an object in the prototype chain has a value for the property, that value
+is returned. If no such property is found, JavaScript says the object does not 
+have the property. In this way, the `mark` object has the following properties and values:
+
+mark.name = "";
+mark.dept = "general";
+mark.projects = [];
 
 
 

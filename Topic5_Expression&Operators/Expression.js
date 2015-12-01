@@ -275,17 +275,29 @@ the DOM element on which the listener is placed:
 /*
 Comprehensions
 
+This is an experimental technology, part of the ECMAScript 2016 (ES7) proposal.
+
 Comprehensions are an experimental JavaScript feature, targeted to be
 included in a future ECMAScript version. There are two versions of comprehensions:
 
- [for (x of y) x]
-Array comprehensions.
 
- (for (x of y) y)
-Generator comprehensions.
+The array comprehension syntax is a JavaScript expression which allows you to 
+quickly assemble a new array based on an existing one. Comprehensions exist 
+in many programming languages and the upcoming ECMAScript 7 standard defines 
+array comprehensions for JavaScript.
 
-Comprehensions exist in many programming languages and allow you to 
-quickly assemble a new array based on an existing one, for example.
+Syntax
+[for (x of iterable) x]
+[for (x of iterable) if (condition) x]
+[for (x of iterable) for (y of iterable) x + y]
+
+Description
+Inside array comprehensions, these two kinds of components are allowed:
+
+for...of and
+if
+The for-of iteration is always the first component. Multiple for-of iterations or if statements are allowed.
+
 */
 
 [for (i of [ 1, 2, 3 ]) i*i ]; 
@@ -294,6 +306,133 @@ quickly assemble a new array based on an existing one, for example.
 var abc = [ "A", "B", "C" ];
 [for (letters of abc) letters.toLowerCase()];
 // [ "a", "b", "c" ]
+
+var years = [ 1954, 1974, 1990, 2006, 2010, 2014 ];
+[for (year of years) if (year > 2000) year];
+// [ 2006, 2010, 2014 ]
+
+[for (year of years) if (year > 2000) if(year < 2010) year];
+// [ 2006], the same as below:
+
+[for (year of years) if (year > 2000 && year < 2010) year];
+// [ 2006]
+
+
+
+/*
+Array comprehensions compared to map and filter
+
+An easy way to understand array comprehension syntax, is to compare it with the Array map and filter methods:
+*/
+var numbers = [ 1, 2, 3 ];
+
+numbers.map(function (i) { return i * i });
+numbers.map(i => i*i);
+[for (i of numbers) i*i ];
+// all are [ 1, 4, 9 ]
+
+
+numbers.filter(function (i) { return i < 3 });
+numbers.filter(i => i < 3);
+[for (i of numbers) if (i < 3) i];
+// all are [ 1, 2 ]
+
+
+/*
+Array comprehensions with two arrays
+
+Using two for-of iterations to work with two arrays:
+*/
+
+var numbers = [ 1, 2, 3 ];
+var letters = [ "a", "b", "c" ];
+
+var cross = [for (i of numbers) for (j of letters) i+j];
+// [ "1a", "1b", "1c", "2a", "2b", "2c", "3a", "3b", "3c" ]
+
+var grid = [for (i of numbers) [for (j of letters) i+j]];
+// [
+//  ["1a", "1b", "1c"],
+//  ["2a", "2b", "2c"],
+//  ["3a", "3b", "3c"]
+// ]
+
+[for (i of numbers) if (i > 1) for (j of letters) if(j > "a") i+j]
+// ["2b", "2c", "3b", "3c"], the same as below:
+
+[for (i of numbers) for (j of letters) if (i > 1) if(j > "a") i+j]
+// ["2b", "2c", "3b", "3c"]
+
+[for (i of numbers) if (i > 1) [for (j of letters) if(j > "a") i+j]]
+// [["2b", "2c"], ["3b", "3c"]], not the same as below:
+
+[for (i of numbers) [for (j of letters) if (i > 1) if(j > "a") i+j]]
+// [[], ["2b", "2c"], ["3b", "3c"]]
+
+
+/*
+Generator comprehensions
+
+This is an experimental technology, part of the ECMAScript 2016 (ES7) proposal.
+
+The generator comprehension syntax is a JavaScript expression which allows you
+to quickly assemble a new generator function based on an existing iterable 
+object. Comprehensions exist in many programming languages and the upcoming 
+ECMAScript 7 standard defines array comprehensions for JavaScript.
+
+When to use generator comprehension?
+
+A generator comprehension is the lazy version of a list comprehension.
+
+It is just like a array comprehension except that it returns an iterator
+instead of the aray i.e., an object with a next() method that will yield 
+the next element.
+
+> my_list_1 = [for (i of [ 1, 2, 3 ]) i*i ];
+> print(my_list_1); 
+> "1,4,9"
+> my_list_2 = (for (i of [ 1, 2, 3 ]) i*i );
+> print(my_list_2);  # notice it's a generator object
+> "[object Generator]"
+> # We extract each item out individually. We'll do it manually first.
+> my_list_2.next()
+> Object { value: 1, done: false }
+> my_list.next()
+> Object { value: 4, done: false }
+
+Because a generator comprehension only has to yield one item at a time, it 
+can lead to big savings in memory usage. Generator comprehensions make the 
+most sense in scenarios where you need to take one item at a time, do a 
+lot of calculations based on that item, and then move on to the next item.
+If you need more than one value, you can also use a generator comprehension
+and grab a few at a time. If you need all the values before your program 
+proceeds, use a array comprehension instead.
+*/
+
+(for (i of [ 1, 2, 3 ]) i*i );
+// generator function which yields 1, 4, and 9
+
+[...(for (i of [ 1, 2, 3 ]) i*i )];
+// [1, 4, 9]
+
+var abc = [ "A", "B", "C" ];
+(for (letters of abc) letters.toLowerCase());
+// generator function which yields "a", "b", and "c"
+
+var years = [ 1954, 1974, 1990, 2006, 2010, 2014 ];
+
+(for (year of years) if (year > 2000) year);
+// generator function which yields 2006, 2010, and 2014
+
+(for (year of years) if (year > 2000) if(year < 2010) year);
+// generator function which yields 2006, the same as below:
+
+(for (year of years) if (year > 2000 && year < 2010) year);
+// generator function which yields 2006
+
+
+
+
 
 
 
@@ -318,6 +457,44 @@ A function that specifies the type of the object instance.
 
 arguments
 A list of values that the constructor will be called with.
+
+
+Considering constructor Employee
+
+function Employee() {
+  this.name = "";
+  this.dept = "general";
+}
+
+`new Employee()` is technically equivalent to: 
+      a) `var Y = {"__proto__" : Employee.prototype};`
+      b) Invoke `Employee.apply(Y, arguments);` // `Employee` constructor does not have `arguments`
+      c) Y;   // is the object created after calling `new X` that has values set for members `name` 
+              // and `dept` and '__proto__' pointing to 'Employee.prototype'.
+
+
+
+
+
+
+spread
+This is a new technology, part of the ECMAScript 2015 (ES6) standard.
+
+The spread operator allows an expression to be expanded in places where
+multiple arguments (for function calls) or multiple elements (for array
+literals) are expected.
+
+Syntax
+
+For function calls:
+myFunction(...iterableObj);
+
+For array literals:
+[...iterableObj, 4, 5, 6]
+
+For destructuring:
+[a, b, ...iterableObj] = [1, 2, 3, 4, 5];
+
 
 
 */
